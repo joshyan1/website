@@ -7,6 +7,7 @@ const TerminalComponent = () => {
     const terminalRef = useRef(null);
     const terminalInstance = useRef(null);
     const fitAddonRef = useRef(null);
+    const motd = "Welcome to my portfolio website. Type 'help' to see available commands."
 
     useEffect(() => {
         if (terminalInstance.current) {
@@ -36,10 +37,24 @@ const TerminalComponent = () => {
         }
 
         const commands = {
-            help: 'Available commands: help, about, projects, contact, ls, cd, cat',
-            about: 'I am a passionate developer...',
-            projects: 'Project 1, Project 2, Project 3',
-            contact: 'Email: example@example.com'
+            help: `Here's how to use my website:
+
+help    Display this help message
+ls      List files in the current directory
+cd      Change directory
+cat     Display file contents
+struct  Display file system structure
+`,
+            struct: `home
+├── about
+├── chat
+├── contact
+├── projects/
+│   ├── skyline
+│   └── portfolio
+└── work/
+    └── ollama
+`
         };
 
         const fileSystem = {
@@ -49,6 +64,9 @@ const TerminalComponent = () => {
                     'project1.txt': 'Details about project 1...',
                     'project2.txt': 'Details about project 2...'
                 },
+                'work': {
+                    'ollama': 'I work'
+                },
                 'contact.txt': 'Email: example@example.com'
             }
         };
@@ -57,12 +75,28 @@ const TerminalComponent = () => {
 
         const resolvePath = (path) => {
             const parts = path.split('/');
-            let current = fileSystem;
+            const cur = currentDirectory.split('/')
+
+            console.log(cur)
+            let current = fileSystem['/'];
+            for (const part of cur) {
+                console.log(current)
+                if (part && current[part]) {
+                    current = current[part];
+                } else if (!part) {
+                    continue
+                } else {
+                    return null
+                }
+            }
+
             for (const part of parts) {
                 if (part && current[part]) {
                     current = current[part];
+                } else if (!part) {
+                    continue
                 } else {
-                    return null;
+                    return null
                 }
             }
             return current;
@@ -70,11 +104,20 @@ const TerminalComponent = () => {
 
         const handleCommand = (input) => {
             const [user, location, start, command, ...args] = input.trim().split(' ');
-            console.log(user, location, start, command, args);
+            console.log(user, location, start, command, args)
 
+
+            // Newline
+            terminalInstance.current.writeln('');
+            if (command == null) {
+                return;
+            }
             switch (command) {
                 case 'help':
-                    terminalInstance.current.writeln(commands.help);
+                    terminalInstance.current.write(commands.help.replace(/\n/g, '\r\n'));
+                    break;
+                case 'struct':
+                    terminalInstance.current.write(commands.struct.replace(/\n/g, '\r\n'));
                     break;
                 case 'about':
                     terminalInstance.current.writeln(commands.about);
@@ -87,10 +130,20 @@ const TerminalComponent = () => {
                     break;
                 case 'ls':
                     const dir = args[0] ? resolvePath(args[0]) : resolvePath(currentDirectory);
+                    console.log(dir)
                     if (dir && typeof dir === 'object') {
                         terminalInstance.current.writeln(Object.keys(dir).join(' '));
                     } else {
                         terminalInstance.current.writeln(`ls: cannot access '${args[0]}': No such file or directory`);
+                    }
+                    break;
+                case 'cd':
+                    const newDir = args[0] ? resolvePath(args[0]) : resolvePath(currentDirectory);
+                    if (newDir && typeof newDir === 'object') {
+                        currentDirectory = args[0] ? currentDirectory + args[0] : '/';
+                        terminalInstance.current.prompt();
+                    } else {
+                        terminalInstance.current.writeln(`cd: no such file or directory: ${args[0]}`);
                     }
                     break;
                 case 'cat':
@@ -120,9 +173,10 @@ const TerminalComponent = () => {
         });
 
         terminalInstance.current.prompt = () => {
-            terminalInstance.current.write('\r\nvisitor@joshyanwebsite: ' + ((currentDirectory === '/') ? '~' : currentDirectory) + ' % ');
+            terminalInstance.current.write('\rvisitor@joshyanwebsite: ' + ((currentDirectory === '/') ? '~' : currentDirectory) + ' % ');
         };
 
+        terminalInstance.current.writeln(motd + '\n');
         terminalInstance.current.prompt();
 
         // Cleanup function to dispose the terminal instance when component unmounts
@@ -136,7 +190,7 @@ const TerminalComponent = () => {
 
     return (
         <div className="w-full h-full flex justify-center items-center bg-black text-white">
-            <div id="terminal-container" className="w-full h-full pl-2 text-left" ref={terminalRef}></div>
+            <div id="terminal-container" className="w-full h-full pl-2 text-left leading-7 pt-2" ref={terminalRef}></div>
         </div>
     );
 };
