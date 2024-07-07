@@ -5,9 +5,14 @@ import 'xterm/css/xterm.css';
 
 const TerminalComponent = () => {
     const terminalRef = useRef(null);
+    const terminalInstance = useRef(null);
 
     useEffect(() => {
-        const terminal = new Terminal({
+        if (terminalInstance.current) {
+            return; // If terminal instance already exists, do not recreate
+        }
+
+        terminalInstance.current = new Terminal({
             theme: {
                 background: '#000000',
                 foreground: '#ffffff',
@@ -18,9 +23,9 @@ const TerminalComponent = () => {
         });
 
         const fitAddon = new FitAddon();
-        terminal.loadAddon(fitAddon);
+        terminalInstance.current.loadAddon(fitAddon);
 
-        terminal.open(terminalRef.current);
+        terminalInstance.current.open(terminalRef.current);
         fitAddon.fit();
 
         const commands = {
@@ -57,64 +62,72 @@ const TerminalComponent = () => {
         };
 
         const handleCommand = (input) => {
-            const [command, ...args] = input.trim().split(' ');
+            const [place, location, buffer, command, ...args] = input.trim().split(' ');
+
 
             switch (command) {
                 case 'help':
-                    terminal.writeln(commands.help);
+                    terminalInstance.current.writeln(commands.help);
                     break;
                 case 'about':
-                    terminal.writeln(commands.about);
+                    terminalInstance.current.writeln(commands.about);
                     break;
                 case 'projects':
-                    terminal.writeln(commands.projects);
+                    terminalInstance.current.writeln(commands.projects);
                     break;
                 case 'contact':
-                    terminal.writeln(commands.contact);
+                    terminalInstance.current.writeln(commands.contact);
                     break;
                 case 'ls':
                     const dir = args[0] ? resolvePath(args[0]) : resolvePath(currentDirectory);
                     if (dir && typeof dir === 'object') {
-                        terminal.writeln(Object.keys(dir).join(' '));
+                        terminalInstance.current.writeln(Object.keys(dir).join(' '));
                     } else {
-                        terminal.writeln(`ls: cannot access '${args[0]}': No such file or directory`);
+                        terminalInstance.current.writeln(`ls: cannot access '${args[0]}': No such file or directory`);
                     }
                     break;
                 case 'cat':
                     const file = resolvePath(currentDirectory + '/' + args[0]);
                     if (file && typeof file === 'string') {
-                        terminal.writeln(file);
+                        terminalInstance.current.writeln(file);
                     } else {
-                        terminal.writeln(`cat: ${args[0]}: No such file or directory`);
+                        terminalInstance.current.writeln(`cat: ${args[0]}: No such file or directory`);
                     }
                     break;
                 default:
-                    terminal.writeln(`${command}: command not found`);
+                    terminalInstance.current.writeln(`${command}: command not found`);
             }
         };
 
-        terminal.onData(e => {
+        terminalInstance.current.onData(e => {
             if (e.charCodeAt(0) === 13) { // Enter key
-                handleCommand(terminal.buffer.active.getLine(terminal.buffer.active.baseY + terminal.buffer.active.cursorY).translateToString(true));
-                terminal.prompt();
+                handleCommand(terminalInstance.current.buffer.active.getLine(terminalInstance.current.buffer.active.baseY + terminalInstance.current.buffer.active.cursorY).translateToString(true));
+                terminalInstance.current.prompt();
             } else if (e.charCodeAt(0) === 127) { // Backspace key
-                if (terminal.buffer.active.cursorX > 2) {
-                    terminal.write('\b \b');
+                if (terminalInstance.current.buffer.active.cursorX > 2) {
+                    terminalInstance.current.write('\b \b');
                 }
             } else {
-                terminal.write(e);
+                terminalInstance.current.write(e);
             }
         });
 
-        terminal.prompt = () => {
-            terminal.write('\r\n$ ');
+        terminalInstance.current.prompt = () => {
+            terminalInstance.current.write('\r\nvisitor@joshyanwebsite: ~ % ');
         };
 
-        terminal.prompt();
+        terminalInstance.current.prompt();
+
+        return () => {
+            if (terminalInstance.current) {
+                terminalInstance.current.dispose();
+                terminalInstance.current = null;
+            }
+        };
     }, []);
 
     return (
-        <div className="w-full h-full flex justify-left items-center bg-black text-white">
+        <div className="w-full h-full flex justify-center items-center bg-black text-white">
             <div id="terminal-container" className="w-full h-full" ref={terminalRef}></div>
         </div>
     );
