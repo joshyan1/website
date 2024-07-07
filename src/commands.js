@@ -46,7 +46,7 @@ const skyline = `multi-agent based city simulation software          \x1b]8;;htt
 -- nextjs flask python
 
 skyline is a project that leverages agents to simulate people in a city started during the 2024 berkeley ai hackathon. 
-we finished as grand finalists and got invited to \x1b]8;;https://x.com/_rajanagarwal/status/1805144595627675950\x1b\\dinner with andrej karpathy!\x1b]8;;\x1b\\.
+we finished as grand finalists (top 8 of 290+ teams) and got invited to \x1b]8;;https://x.com/_rajanagarwal/status/1805144595627675950\x1b\\dinner with andrej karpathy!\x1b]8;;\x1b\\.
 we are currently working on a new version of skyline with a more advanced agent-based model and a more realistic city simulation.
 stay up to date @ \x1b]8;;https://github.com/ishaan1013/skyline\x1b\\our website\x1b]8;;\x1b\\
 `;
