@@ -111,7 +111,7 @@ const TerminalComponent = () => {
                 handleCommand(terminalInstance.current.buffer.active.getLine(terminalInstance.current.buffer.active.baseY + terminalInstance.current.buffer.active.cursorY).translateToString(true));
                 terminalInstance.current.prompt();
             } else if (e.charCodeAt(0) === 127) { // Backspace key
-                if (terminalInstance.current.buffer.active.cursorX > 2) {
+                if (terminalInstance.current.buffer.active.cursorX > 28) {
                     terminalInstance.current.write('\b \b');
                 }
             } else {
@@ -136,7 +136,7 @@ const TerminalComponent = () => {
 
     return (
         <div className="w-full h-full flex justify-center items-center bg-black text-white">
-            <div id="terminal-container" className="w-full h-full" ref={terminalRef}></div>
+            <div id="terminal-container" className="w-full h-full pl-2 text-left" ref={terminalRef}></div>
         </div>
     );
 };
