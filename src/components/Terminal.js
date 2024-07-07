@@ -36,55 +36,6 @@ const TerminalComponent = () => {
             fitAddonRef.current.fit();
         }
 
-        /* const commands = {
-            help: `here's how to use my website:
-
-help    display this help message
-ls      list files in the current directory
-cd      change directory
-cat     display file contents
-struct  display file system structure
-chat    chat with me!
-`,
-            struct: `home
-├── about
-├── contact
-├── projects/
-│   ├── skyline
-│   └── portfolio
-└── work/
-    └── ollama
-`
-        };
-        const contactMe = `contact me!
-email:      jyan00017@gmail.com
-            j49yan@uwaterloo.ca
-linkedin:   \x1b]8;;https://www.linkedin.com/in/joshyan1\x1b\\joshyan1\x1b]8;;\x1b\\
-github:     \x1b]8;;https://github.com/joshyan1\x1b\\joshyan1\x1b]8;;\x1b\\
-x:          \x1b]8;;https://twitter.com/josh1yan\x1b\\josh1yan\x1b]8;;\x1b\\
-beli:       chefjoshua`;
-
-        const aboutMe = `hi! i'm josh
-        
-i'm a cs student at waterloo and am currently updating READMEs for \x1b]8;;https://ollama.com/\x1b\\ollama\x1b]8;;\x1b\\
-i like playing badminton, going to the gym, and eating food
-
-use \`chat\` to learn more`;
-
-        const fileSystem = {
-            '~': {
-                'about': aboutMe,
-                'projects': {
-                    'skyline': 'Details about project 1...',
-                    'portfolio': 'Details about project 2...'
-                },
-                'work': {
-                    'ollama': 'I work at ollama, place to '
-                },
-                'contact': contactMe
-            }
-        }; */
-
         let currentDirectory = '~';
         let curDirDisplay = currentDirectory.split('/').pop();
 
@@ -149,17 +100,8 @@ use \`chat\` to learn more`;
                 case 'help':
                     terminalInstance.current.write(commands.help.replace(/\n/g, '\r\n'));
                     break;
-                case 'struct':
-                    terminalInstance.current.write(commands.struct.replace(/\n/g, '\r\n'));
-                    break;
-                case 'about':
-                    terminalInstance.current.writeln(commands.about);
-                    break;
-                case 'projects':
-                    terminalInstance.current.writeln(commands.projects);
-                    break;
-                case 'contact':
-                    terminalInstance.current.writeln(commands.contact);
+                case 'tree':
+                    terminalInstance.current.write(commands.tree.replace(/\n/g, '\r\n'));
                     break;
                 case 'ls':
                     const dir = args[0] ? resolveLs(args[0]) : resolveLs(null);
@@ -170,13 +112,21 @@ use \`chat\` to learn more`;
                     }
                     break;
                 case 'cd':
-                    const newDir = args[0] ? resolvePath(args[0]) : fileSystem['~'];
-                    if (newDir && typeof newDir === 'object') {
+                    const newDir = args[0] ? resolveLs(args[0]) : fileSystem['~'];
+                    if (args[0] === '..') {
+                        if (currentDirectory === '~') {
+                            terminalInstance.current.writeln(`cd: sorry, you can't go back any further`);
+                            break
+                        }
+                        currentDirectory = currentDirectory.split('/').slice(0, -1).join('/');
+                        curDirDisplay = currentDirectory.split('/').pop();
+                        terminalInstance.current.prompt();
+                    } else if (newDir && typeof newDir === 'object') {
                         currentDirectory = args[0] ? currentDirectory + '/' + args[0] : '~';
                         curDirDisplay = currentDirectory.split('/').pop();
                         terminalInstance.current.prompt();
                     } else {
-                        terminalInstance.current.writeln(`cd: no such file or directory: ${args[0]}`);
+                        terminalInstance.current.writeln(`cd: ${args[0]} :no such directory`);
                     }
                     break;
                 case 'cat':
@@ -185,7 +135,7 @@ use \`chat\` to learn more`;
                     if (file && typeof file === 'string') {
                         terminalInstance.current.writeln(file.replace(/\n/g, '\r\n'));
                     } else {
-                        terminalInstance.current.writeln(`cat: ${args[0]}: No such file or directory`);
+                        terminalInstance.current.writeln(`cat: ${args[0]}: no such file`);
                     }
                     break;
                 default:
@@ -194,17 +144,44 @@ use \`chat\` to learn more`;
         };
 
         terminalInstance.current.onData(e => {
+            const cursorX = terminalInstance.current.buffer.active.cursorX;
+            const lenPrompt = lengthOfPrompt(); // Replace with your actual prompt length
+            const inputLength = terminalInstance.current.buffer.active.getLine(terminalInstance.current.buffer.active.baseY + terminalInstance.current.buffer.active.cursorY).translateToString(true).length - lenPrompt;
+
+            console.log(inputLength, lenPrompt)
+            // Handle Enter key
             if (e.charCodeAt(0) === 13) { // Enter key
                 handleCommand(terminalInstance.current.buffer.active.getLine(terminalInstance.current.buffer.active.baseY + terminalInstance.current.buffer.active.cursorY).translateToString(true));
                 terminalInstance.current.prompt();
-            } else if (e.charCodeAt(0) === 127) { // Backspace key
-                if (terminalInstance.current.buffer.active.cursorX > lengthOfPrompt()) {
+            }
+            // Handle Backspace key
+            else if (e.charCodeAt(0) === 127) { // Backspace key
+                if (cursorX > lenPrompt) {
                     terminalInstance.current.write('\b \b');
                 }
-            } else {
+            }
+            // Handle Left Arrow key
+            else if (e.charCodeAt(0) === 27 && e.charAt(1) === '[' && e.charAt(2) === 'D') { // Left arrow key
+                if (cursorX > lenPrompt) {
+                    terminalInstance.current.write(e);
+                }
+            }
+            // Handle Right Arrow key
+            else if (e.charCodeAt(0) === 27 && e.charAt(1) === '[' && e.charAt(2) === 'C') { // Right arrow key
+                if (cursorX < lenPrompt + inputLength) {
+                    terminalInstance.current.write(e);
+                }
+            }
+            // Handle Up and Down Arrow keys
+            else if (e.charCodeAt(0) === 27 && e.charAt(1) === '[' && (e.charAt(2) === 'A' || e.charAt(2) === 'B')) {
+                // Do nothing for now
+            }
+            // Handle other keys
+            else {
                 terminalInstance.current.write(e);
             }
         });
+
 
         terminalInstance.current.prompt = () => {
             terminalInstance.current.write('\rvisitor@joshyanwebsite: ' + curDirDisplay + ' % ');
