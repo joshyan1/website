@@ -98,15 +98,18 @@ const TerminalComponent = () => {
             }
             switch (command) {
                 case 'help':
-                    terminalInstance.current.write(commands.help.replace(/\n/g, '\r\n'));
+                    terminalInstance.current.writeln(commands.help.replace(/\n/g, '\r\n'));
                     break;
                 case 'tree':
-                    terminalInstance.current.write(commands.tree.replace(/\n/g, '\r\n'));
+                    terminalInstance.current.writeln(commands.tree.replace(/\n/g, '\r\n'));
+                    break;
+                case 'chat':
+                    terminalInstance.current.writeln(commands.chat);
                     break;
                 case 'ls':
                     const dir = args[0] ? resolveLs(args[0]) : resolveLs(null);
                     if (dir && typeof dir === 'object') {
-                        terminalInstance.current.writeln(Object.keys(dir).join(' '));
+                        terminalInstance.current.writeln(Object.keys(dir).join('  '));
                     } else {
                         terminalInstance.current.writeln(`ls: cannot access '${args[0]}': No such file or directory`);
                     }
@@ -205,7 +208,7 @@ const TerminalComponent = () => {
 
     return (
         <div className="w-full h-full flex justify-center items-center bg-black text-white">
-            <div id="terminal-container" className="w-full h-full pl-2 text-left leading-7 pt-2" ref={terminalRef}></div>
+            <div id="terminal-container" className="w-full h-full pl-2 text-left leading-7 pt-2 autofocus" ref={terminalRef}></div>
         </div>
     );
 };
