@@ -129,7 +129,7 @@ const TerminalComponent = () => {
                         curDirDisplay = currentDirectory.split('/').pop();
                         terminalInstance.current.prompt();
                     } else {
-                        terminalInstance.current.writeln(`cd: ${args[0]} :no such directory`);
+                        terminalInstance.current.writeln(`cd: ${args[0]}: no such directory`);
                     }
                     break;
                 case 'cat':
