@@ -2,12 +2,12 @@ import React, { useEffect, useRef } from 'react';
 import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
 import 'xterm/css/xterm.css';
+import { commands, fileSystem, motd } from '../commands';
 
 const TerminalComponent = () => {
     const terminalRef = useRef(null);
     const terminalInstance = useRef(null);
     const fitAddonRef = useRef(null);
-    const motd = "Welcome to my portfolio website. Type 'help' to see available commands."
 
     useEffect(() => {
         if (terminalInstance.current) {
@@ -36,18 +36,18 @@ const TerminalComponent = () => {
             fitAddonRef.current.fit();
         }
 
-        const commands = {
-            help: `Here's how to use my website:
+        /* const commands = {
+            help: `here's how to use my website:
 
-help    Display this help message
-ls      List files in the current directory
-cd      Change directory
-cat     Display file contents
-struct  Display file system structure
+help    display this help message
+ls      list files in the current directory
+cd      change directory
+cat     display file contents
+struct  display file system structure
+chat    chat with me!
 `,
             struct: `home
 ├── about
-├── chat
 ├── contact
 ├── projects/
 │   ├── skyline
@@ -56,40 +56,41 @@ struct  Display file system structure
     └── ollama
 `
         };
+        const contactMe = `contact me!
+email:      jyan00017@gmail.com
+            j49yan@uwaterloo.ca
+linkedin:   \x1b]8;;https://www.linkedin.com/in/joshyan1\x1b\\joshyan1\x1b]8;;\x1b\\
+github:     \x1b]8;;https://github.com/joshyan1\x1b\\joshyan1\x1b]8;;\x1b\\
+x:          \x1b]8;;https://twitter.com/josh1yan\x1b\\josh1yan\x1b]8;;\x1b\\
+beli:       chefjoshua`;
+
+        const aboutMe = `hi! i'm josh
+        
+i'm a cs student at waterloo and am currently updating READMEs for \x1b]8;;https://ollama.com/\x1b\\ollama\x1b]8;;\x1b\\
+i like playing badminton, going to the gym, and eating food
+
+use \`chat\` to learn more`;
 
         const fileSystem = {
-            '/': {
-                'about.txt': 'I am a passionate developer...',
+            '~': {
+                'about': aboutMe,
                 'projects': {
-                    'project1.txt': 'Details about project 1...',
-                    'project2.txt': 'Details about project 2...'
+                    'skyline': 'Details about project 1...',
+                    'portfolio': 'Details about project 2...'
                 },
                 'work': {
-                    'ollama': 'I work'
+                    'ollama': 'I work at ollama, place to '
                 },
-                'contact.txt': 'Email: example@example.com'
+                'contact': contactMe
             }
-        };
+        }; */
 
-        let currentDirectory = '/';
+        let currentDirectory = '~';
+        let curDirDisplay = currentDirectory.split('/').pop();
 
         const resolvePath = (path) => {
             const parts = path.split('/');
-            const cur = currentDirectory.split('/')
-
-            console.log(cur)
-            let current = fileSystem['/'];
-            for (const part of cur) {
-                console.log(current)
-                if (part && current[part]) {
-                    current = current[part];
-                } else if (!part) {
-                    continue
-                } else {
-                    return null
-                }
-            }
-
+            let current = fileSystem;
             for (const part of parts) {
                 if (part && current[part]) {
                     current = current[part];
@@ -102,10 +103,42 @@ struct  Display file system structure
             return current;
         };
 
+        const resolveLs = (path) => {
+            console.log(path)
+            var parts = [];
+            if (path != null) {
+                parts = path.split('/')
+            }
+
+            const cur = currentDirectory.split('/')
+
+            let current = fileSystem;
+            for (const part of cur) {
+                if (part && current[part]) {
+                    current = current[part];
+                } else if (!part) {
+                    continue
+                } else {
+                    return null
+                }
+            }
+
+
+            for (const part of parts) {
+                if (part && current[part]) {
+                    current = current[part];
+                } else if (!part) {
+                    continue
+                } else {
+                    return null
+                }
+            }
+            return current;
+        }
+
         const handleCommand = (input) => {
             const [user, location, start, command, ...args] = input.trim().split(' ');
             console.log(user, location, start, command, args)
-
 
             // Newline
             terminalInstance.current.writeln('');
@@ -129,8 +162,7 @@ struct  Display file system structure
                     terminalInstance.current.writeln(commands.contact);
                     break;
                 case 'ls':
-                    const dir = args[0] ? resolvePath(args[0]) : resolvePath(currentDirectory);
-                    console.log(dir)
+                    const dir = args[0] ? resolveLs(args[0]) : resolveLs(null);
                     if (dir && typeof dir === 'object') {
                         terminalInstance.current.writeln(Object.keys(dir).join(' '));
                     } else {
@@ -138,9 +170,10 @@ struct  Display file system structure
                     }
                     break;
                 case 'cd':
-                    const newDir = args[0] ? resolvePath(args[0]) : resolvePath(currentDirectory);
+                    const newDir = args[0] ? resolvePath(args[0]) : fileSystem['~'];
                     if (newDir && typeof newDir === 'object') {
-                        currentDirectory = args[0] ? currentDirectory + args[0] : '/';
+                        currentDirectory = args[0] ? currentDirectory + '/' + args[0] : '~';
+                        curDirDisplay = currentDirectory.split('/').pop();
                         terminalInstance.current.prompt();
                     } else {
                         terminalInstance.current.writeln(`cd: no such file or directory: ${args[0]}`);
@@ -148,8 +181,9 @@ struct  Display file system structure
                     break;
                 case 'cat':
                     const file = resolvePath(currentDirectory + '/' + args[0]);
+                    console.log(file)
                     if (file && typeof file === 'string') {
-                        terminalInstance.current.writeln(file);
+                        terminalInstance.current.writeln(file.replace(/\n/g, '\r\n'));
                     } else {
                         terminalInstance.current.writeln(`cat: ${args[0]}: No such file or directory`);
                     }
@@ -164,7 +198,7 @@ struct  Display file system structure
                 handleCommand(terminalInstance.current.buffer.active.getLine(terminalInstance.current.buffer.active.baseY + terminalInstance.current.buffer.active.cursorY).translateToString(true));
                 terminalInstance.current.prompt();
             } else if (e.charCodeAt(0) === 127) { // Backspace key
-                if (terminalInstance.current.buffer.active.cursorX > 28) {
+                if (terminalInstance.current.buffer.active.cursorX > lengthOfPrompt()) {
                     terminalInstance.current.write('\b \b');
                 }
             } else {
@@ -173,8 +207,12 @@ struct  Display file system structure
         });
 
         terminalInstance.current.prompt = () => {
-            terminalInstance.current.write('\rvisitor@joshyanwebsite: ' + ((currentDirectory === '/') ? '~' : currentDirectory) + ' % ');
+            terminalInstance.current.write('\rvisitor@joshyanwebsite: ' + curDirDisplay + ' % ');
         };
+
+        const lengthOfPrompt = () => {
+            return 27 + curDirDisplay.length;
+        }
 
         terminalInstance.current.writeln(motd + '\n');
         terminalInstance.current.prompt();
