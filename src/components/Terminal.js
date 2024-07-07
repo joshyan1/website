@@ -6,12 +6,14 @@ import 'xterm/css/xterm.css';
 const TerminalComponent = () => {
     const terminalRef = useRef(null);
     const terminalInstance = useRef(null);
+    const fitAddonRef = useRef(null);
 
     useEffect(() => {
         if (terminalInstance.current) {
             return; // If terminal instance already exists, do not recreate
         }
 
+        // Initialize Terminal and FitAddon
         terminalInstance.current = new Terminal({
             theme: {
                 background: '#000000',
@@ -22,11 +24,16 @@ const TerminalComponent = () => {
             cursorBlink: true
         });
 
-        const fitAddon = new FitAddon();
-        terminalInstance.current.loadAddon(fitAddon);
+        fitAddonRef.current = new FitAddon();
+        terminalInstance.current.loadAddon(fitAddonRef.current);
 
+        // Open the terminal in the container
         terminalInstance.current.open(terminalRef.current);
-        fitAddon.fit();
+
+        // Fit the terminal to the container size
+        if (fitAddonRef.current) {
+            fitAddonRef.current.fit();
+        }
 
         const commands = {
             help: 'Available commands: help, about, projects, contact, ls, cd, cat',
@@ -62,8 +69,8 @@ const TerminalComponent = () => {
         };
 
         const handleCommand = (input) => {
-            const [place, location, buffer, command, ...args] = input.trim().split(' ');
-
+            const [user, location, start, command, ...args] = input.trim().split(' ');
+            console.log(user, location, start, command, args);
 
             switch (command) {
                 case 'help':
@@ -113,11 +120,12 @@ const TerminalComponent = () => {
         });
 
         terminalInstance.current.prompt = () => {
-            terminalInstance.current.write('\r\nvisitor@joshyanwebsite: ~ % ');
+            terminalInstance.current.write('\r\nvisitor@joshyanwebsite: ' + ((currentDirectory === '/') ? '~' : currentDirectory) + ' % ');
         };
 
         terminalInstance.current.prompt();
 
+        // Cleanup function to dispose the terminal instance when component unmounts
         return () => {
             if (terminalInstance.current) {
                 terminalInstance.current.dispose();
