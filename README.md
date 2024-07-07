@@ -1,1 +1,3 @@
-# Welcome to my portfolio app
+this is my portfolio website
+
+i built it yesterday
