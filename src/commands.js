@@ -62,7 +62,7 @@ use \`chat\` to talk to me (but fine-tuned on conversation) and use the commands
 const ollama = `
 run llms locally                                    \x1b]8;;https://ollama.com/\x1b\\ollama.com\x1b]8;;\x1b\\   \x1b]8;;https://github.com/ollama/ollama\x1b\\github\x1b]8;;\x1b\\
 
-`
+`;
 
 export const fileSystem = {
     '~': {
