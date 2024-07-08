@@ -39,7 +39,7 @@ const aboutMe = `hi! i'm josh
 i'm a cs student at waterloo (1B) and am currently updating READMEs for \x1b]8;;https://ollama.com/\x1b\\ollama\x1b]8;;\x1b\\
 i like playing badminton, going to the gym, and eating food
 
-use \`chat\` to learn more and \`contact\` to find my socials
+use \`chat\` to learn more and \`cat contact\` to find my socials
 `;
 
 const skyline = `multi-agent based city simulation software          \x1b]8;;https://github.com/ishaan1013/skyline\x1b\\github\x1b]8;;\x1b\\    \x1b]8;;https://devpost.com/software/skyline-ywc8r6/\x1b\\devpost\x1b]8;;\x1b\\
