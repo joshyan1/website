@@ -69,7 +69,7 @@ i'm currently a software engineer intern at ollama
 
 export const fileSystem = {
     '~': {
-        'about': aboutMe,
+        'about.txt': aboutMe,
         'projects': {
             'skyline': skyline,
             'portfolio': portfolio
@@ -77,6 +77,6 @@ export const fileSystem = {
         'work': {
             'ollama': ollama
         },
-        'contact': contactMe
+        'contact.txt': contactMe
     }
 };
