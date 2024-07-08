@@ -9,6 +9,9 @@ const TerminalComponent = () => {
     const terminalInstance = useRef(null);
     const fitAddonRef = useRef(null);
     const inputBuffer = useRef('');
+    const inputHist = useRef([]);
+    const histIndex = useRef(0);
+    const tempInput = useRef('');
 
     useEffect(() => {
         if (terminalInstance.current) {
@@ -56,7 +59,6 @@ const TerminalComponent = () => {
         };
 
         const resolveLs = (path) => {
-            console.log(path)
             var parts = [];
             if (path != null) {
                 parts = path.split('/')
@@ -89,14 +91,10 @@ const TerminalComponent = () => {
         }
 
         const handleCommand = (input) => {
-            console.log(input)
             const [command, ...args] = input.trim().split(' ');
 
             // Newline
             terminalInstance.current.writeln('');
-            if (command == null) {
-                return;
-            }
             switch (command) {
                 case 'help':
                     terminalInstance.current.writeln(commands.help.replace(/\n/g, '\r\n'));
@@ -135,7 +133,6 @@ const TerminalComponent = () => {
                     break;
                 case 'cat':
                     const file = resolvePath(currentDirectory + '/' + args[0]);
-                    console.log(file)
                     if (file && typeof file === 'string') {
                         terminalInstance.current.writeln(file.replace(/\n/g, '\r\n'));
                     } else {
@@ -152,10 +149,16 @@ const TerminalComponent = () => {
             const lenPrompt = lengthOfPrompt(); // Replace with your actual prompt length
             const inputLength = inputBuffer.length;
 
-            console.log(inputLength, lenPrompt)
             // Handle Enter key
             if (e.charCodeAt(0) === 13) { // Enter key
+                if (inputBuffer.current.length === 0) {
+                    terminalInstance.current.writeln('');
+                    terminalInstance.current.prompt();
+                    return;
+                }
                 handleCommand(inputBuffer.current);
+                inputHist.current.push(inputBuffer.current);
+                histIndex.current = histIndex.current + 1;
                 inputBuffer.current = '';
                 terminalInstance.current.prompt();
             }
@@ -164,7 +167,6 @@ const TerminalComponent = () => {
                 if (inputBuffer.current.length > 0) {
                     terminalInstance.current.write('\b \b');
                     inputBuffer.current = inputBuffer.current.slice(0, -1); // Remove last character from input buffer
-
                 }
             }
             // Handle Left Arrow key
@@ -179,13 +181,37 @@ const TerminalComponent = () => {
                     terminalInstance.current.write(e);
                 }
             }
-            // Handle Up and Down Arrow keys
-            else if (e.charCodeAt(0) === 27 && e.charAt(1) === '[' && (e.charAt(2) === 'A' || e.charAt(2) === 'B')) {
-                // Do nothing for now
+            // Handle Up Arrow key
+            else if (e.charCodeAt(0) === 27 && e.charAt(1) === '[' && e.charAt(2) === 'A') { // Up arrow key
+                if (histIndex.current === inputHist.current.length) {
+                    tempInput.current = inputBuffer.current;
+                }
+                if (histIndex.current > 0) {
+                    histIndex.current--;
+                    terminalInstance.current.write('\r\x1b[K');
+                    terminalInstance.current.prompt();
+                    terminalInstance.current.write(inputHist.current[histIndex.current]);
+                    inputBuffer.current = inputHist.current[histIndex.current];
+                }
+            }
+            // Handle Down Arrow key
+            else if (e.charCodeAt(0) === 27 && e.charAt(1) === '[' && e.charAt(2) === 'B') { // Down arrow key
+                if (histIndex.current < inputHist.current.length - 1) {
+                    histIndex.current++;
+                    terminalInstance.current.write('\r\x1b[K');
+                    terminalInstance.current.prompt();
+                    terminalInstance.current.write(inputHist.current[histIndex.current]);
+                    inputBuffer.current = inputHist.current[histIndex.current];
+                } else if (histIndex.current === inputHist.current.length - 1) {
+                    histIndex.current++;
+                    terminalInstance.current.write('\r\x1b[K');
+                    terminalInstance.current.prompt();
+                    terminalInstance.current.write(tempInput.current);
+                    inputBuffer.current = tempInput.current;
+                }
             }
             // Handle other keys
             else {
-                console.log(e)
                 terminalInstance.current.write(e);
                 inputBuffer.current = inputBuffer.current + e // Remove last character from input buffer
             }
