@@ -240,7 +240,7 @@ const TerminalComponent = () => {
 
     return (
         <div className="w-full h-full flex justify-center items-center bg-black text-white">
-            <div id="terminal-container" className="w-full h-full pl-2 text-left leading-7 pt-2 autofocus" ref={terminalRef}></div>
+            <div id="terminal-container" className="w-full h-full px-2 text-left leading-7 pt-2 pb-8 autofocus" ref={terminalRef}></div>
         </div>
     );
 };

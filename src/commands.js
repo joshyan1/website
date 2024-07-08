@@ -12,12 +12,12 @@ cat     display file contents
 tree    display file system structure
 chat    chat with me!
 `,
-    tree: `home
-├── about
-├── contact
+    tree: `home/
+├── about.txt
+├── contact.txt
 ├── projects/
-│   ├── skyline
-│   └── portfolio
+│   ├── skyline.txt
+│   └── portfolio.txt
 └── work/
     └── ollama
 `,
@@ -71,12 +71,12 @@ export const fileSystem = {
     '~': {
         'about.txt': aboutMe,
         'projects': {
-            'skyline': skyline,
-            'portfolio': portfolio
+            'skyline.txt': skyline,
+            'portfolio.txt': portfolio
         },
         'work': {
-            'ollama': ollama
+            'ollama.txt': ollama
         },
-        'contact.txt': contactMe
+        'contact.txt': contactMe,
     }
 };
