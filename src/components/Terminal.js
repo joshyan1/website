@@ -8,6 +8,7 @@ const TerminalComponent = () => {
     const terminalRef = useRef(null);
     const terminalInstance = useRef(null);
     const fitAddonRef = useRef(null);
+    const inputBuffer = useRef('');
 
     useEffect(() => {
         if (terminalInstance.current) {
@@ -88,8 +89,8 @@ const TerminalComponent = () => {
         }
 
         const handleCommand = (input) => {
-            const [user, location, start, command, ...args] = input.trim().split(' ');
-            console.log(user, location, start, command, args)
+            console.log(input)
+            const [command, ...args] = input.trim().split(' ');
 
             // Newline
             terminalInstance.current.writeln('');
@@ -149,18 +150,21 @@ const TerminalComponent = () => {
         terminalInstance.current.onData(e => {
             const cursorX = terminalInstance.current.buffer.active.cursorX;
             const lenPrompt = lengthOfPrompt(); // Replace with your actual prompt length
-            const inputLength = terminalInstance.current.buffer.active.getLine(terminalInstance.current.buffer.active.baseY + terminalInstance.current.buffer.active.cursorY).translateToString(true).length - lenPrompt;
+            const inputLength = inputBuffer.length;
 
             console.log(inputLength, lenPrompt)
             // Handle Enter key
             if (e.charCodeAt(0) === 13) { // Enter key
-                handleCommand(terminalInstance.current.buffer.active.getLine(terminalInstance.current.buffer.active.baseY + terminalInstance.current.buffer.active.cursorY).translateToString(true));
+                handleCommand(inputBuffer.current);
+                inputBuffer.current = '';
                 terminalInstance.current.prompt();
             }
             // Handle Backspace key
             else if (e.charCodeAt(0) === 127) { // Backspace key
-                if (cursorX > lenPrompt) {
+                if (inputBuffer.current.length > 0) {
                     terminalInstance.current.write('\b \b');
+                    inputBuffer.current = inputBuffer.current.slice(0, -1); // Remove last character from input buffer
+
                 }
             }
             // Handle Left Arrow key
@@ -181,17 +185,19 @@ const TerminalComponent = () => {
             }
             // Handle other keys
             else {
+                console.log(e)
                 terminalInstance.current.write(e);
+                inputBuffer.current = inputBuffer.current + e // Remove last character from input buffer
             }
         });
 
 
         terminalInstance.current.prompt = () => {
-            terminalInstance.current.write('\rvisitor@joshyanwebsite: ' + curDirDisplay + ' % ');
+            terminalInstance.current.write('\rguest@joshyan: ' + curDirDisplay + ' % ');
         };
 
         const lengthOfPrompt = () => {
-            return 27 + curDirDisplay.length;
+            return 18 + curDirDisplay.length;
         }
 
         terminalInstance.current.writeln(motd + '\n');
