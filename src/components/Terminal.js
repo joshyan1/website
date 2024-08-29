@@ -139,6 +139,9 @@ const TerminalComponent = () => {
                         terminalInstance.current.writeln(`cat: ${args[0]}: no such file`);
                     }
                     break;
+                case 'resume':
+                    terminalInstance.current.writeln(commands.resume.replace(/\n/g, '\r\n'));
+                    break;
                 default:
                     terminalInstance.current.writeln(`${command}: command not found`);
             }
