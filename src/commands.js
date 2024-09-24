@@ -82,8 +82,11 @@ beli:       chefjoshua`;
 
 const aboutMe = `hi! i'm josh
         
-i'm a cs student at waterloo (1B) and am currently updating READMEs for \x1b]8;;https://ollama.com/\x1b\\ollama\x1b]8;;\x1b\\
-i like playing badminton, going to the gym, and eating food
+i'm a cs student at waterloo (2A) and am currently struggling through class, job applications, and cooking for myself. 
+i previously interned at \x1b]8;;https://ollama.com/\x1b\\ollama\x1b]8;;\x1b\\ where i did some pretty cool
+ml and infrastructure stuff. please checkout my work directory for more info!
+
+i also like playing badminton, going to the gym, and eating food
 
 use \`chat\` to learn more and \`cat contact\` to find my socials`;
 
@@ -109,15 +112,34 @@ const ollama = `run llms locally
 
 i'm currently a software engineer intern at ollama`;
 
+const stealthStartup = `ai running an ai startup
+|─ \x1b]8;;https://github.com/rajansagarwal/stealth-startup\x1b\\github\x1b]8;;\x1b\\
+|─ python
+
+stealth startup is an agentic framework leveraging llm-based agents to simulate the essential people in a startup. we created 
+a variety of agents able to reason about their own actions through internal models and interact with each other through a slack
+channel to coordinate and develop their startup. we developed agents to have individual capabilities: one of our coolest agents
+is our cto, which leverages groq and llama3.1 for code generation, iterating upon the codebase and pushing diffs to github. 
+check out our github and website for a more in-depth look!`;
+
+const eightVC = `engaging in venture capital
+|─ \x1b]8;;https://www.8vc.com/fellows/josh-yan\x1b\\fellowship\x1b]8;;\x1b\\
+
+i was 1 of 31 fellows selected to participate in the 8vc fellowship program, a 12-week program that exposes students to venture 
+capital, start ups, and emerging tech. i had the opportunity to work with and meet a variet of incredible founders, students, 
+and investors like joe lonsdale.`;
+
 export const fileSystem = {
     '~': {
         'about.md': aboutMe,
         'projects': {
             'skyline.md': skyline,
-            'portfolio.md': portfolio
+            'portfolio.md': portfolio,
+            'stealth-startup.md': stealthStartup,
         },
         'work': {
-            'ollama.md': ollama
+            'ollama.md': ollama,
+            '8vc.md': eightVC,
         },
         'contact.md': contactMe,
     }

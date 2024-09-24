@@ -150,7 +150,7 @@ const TerminalComponent = () => {
         terminalInstance.current.onData(e => {
             const cursorX = terminalInstance.current.buffer.active.cursorX;
             const lenPrompt = lengthOfPrompt(); // Replace with your actual prompt length
-            const inputLength = inputBuffer.length;
+            const inputLength = inputBuffer.current.length;
 
             // Handle Enter key
             if (e.charCodeAt(0) === 13) { // Enter key
@@ -166,10 +166,18 @@ const TerminalComponent = () => {
                 terminalInstance.current.prompt();
             }
             // Handle Backspace key
+            // Remember to delete from where cursor is. Not the end of the input buffer
             else if (e.charCodeAt(0) === 127) { // Backspace key
-                if (inputBuffer.current.length > 0) {
-                    terminalInstance.current.write('\b \b');
-                    inputBuffer.current = inputBuffer.current.slice(0, -1); // Remove last character from input buffer
+                if (inputBuffer.current.length > 0 && cursorX > lenPrompt) {
+                    var temp = cursorX - lenPrompt;
+                    inputBuffer.current = inputBuffer.current.slice(0, cursorX - lenPrompt - 1).concat(inputBuffer.current.slice(cursorX - lenPrompt)); // Remove last character from input buffer
+                    terminalInstance.current.write('\r\x1b[K');
+                    terminalInstance.current.prompt();
+                    terminalInstance.current.write(inputBuffer.current);
+                    console.log(inputLength, cursorX)
+                    for (var i = 0; i < inputLength - temp; i++) {
+                        terminalInstance.current.write('\x1b[D');
+                    }
                 }
             }
             // Handle Left Arrow key
@@ -178,8 +186,11 @@ const TerminalComponent = () => {
                     terminalInstance.current.write(e);
                 }
             }
+            
             // Handle Right Arrow key
             else if (e.charCodeAt(0) === 27 && e.charAt(1) === '[' && e.charAt(2) === 'C') { // Right arrow key
+                console.log(cursorX, lenPrompt, inputLength)
+
                 if (cursorX < lenPrompt + inputLength) {
                     terminalInstance.current.write(e);
                 }
@@ -212,6 +223,11 @@ const TerminalComponent = () => {
                     terminalInstance.current.write(tempInput.current);
                     inputBuffer.current = tempInput.current;
                 }
+            }
+
+            else if (e === '\x0C') { // ASCII code 12 for Ctrl + L
+                terminalInstance.current.clear(); // Clear the terminal screen
+                inputBuffer.current = ''; // Clear the input buffer
             }
             // Handle other keys
             else {
