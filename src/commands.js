@@ -15,6 +15,7 @@ chat    chat with me!`,
     tree: `home/
 ├── projects/
 │   ├── skyline.md
+│   ├── arceus.md
 │   ├── portfolio.md
 │   └── stealth-startup.md
 ├── work/
@@ -55,7 +56,13 @@ chat    chat with me!`,
 |  lonsdale
 |
 |projects
-|skyline                                                             jun 2024 - present
+|arceus                                                                        dec 2024
+|• engineered a distributed deep learning framework with model parallelism for
+|  transformer and neural network training on clusters of consumer hardware
+|• developed an api to manage devices, jobs, and serve training metrics with
+|  concurrent sessions using grpc with protocol buffers for device communication
+|
+|skyline                                                            jun 2024 - jul 2024
 |• created a simulation of la with 500+ agents using census data and chain of thought 
 |  reasoning to model population movement. grand-finalist at 2024 berkeley ai hackathon
 |• built a scalable websocket api in flask, leveraging concurrency to generate, 
@@ -65,10 +72,6 @@ chat    chat with me!`,
 |• engineered an llm-based agentic framework for simulating a startup with autonomous 
 |  agents capable of code generation, discussion, and research through external tools
 |
-|personal website                                                    jul 2024 - present
-|• built a terminal emulator and chatbot portfolio website using react
-|• fine-tuned a llama3 model on myself using mlx and hosted on ollama to mimic
-|  real-time user conversation and provide personal information
 `,
 };
 
@@ -131,6 +134,18 @@ channel to coordinate and develop their startup. we developed agents to have ind
 is our cto, which leverages groq and llama3.1 for code generation, iterating upon the codebase and pushing diffs to github. 
 check out our github and website for a more in-depth look!`;
 
+const arceus = `build ml models on consumer hardware
+|─ \x1b]8;;https://www.linkedin.com/feed/update/urn:li:activity:7275619888268767232/\x1b\\linkedin\x1b]8;;\x1b\\
+|─ python  nextjs
+
+arceus is a distributed training framework for developing llms and neural nets on consumer hardware. using native pytorch,
+we created a simple framework for model parallelism with dynamic layer allocation across a cluster, allowing for training
+across the network. we utilized grpc's serialization to reduce latency associated with transmitting weights and gradients
+between devices.
+
+we ended up pitching this to investors from a16z, sequoia, thrive capital, and more!
+`
+
 const eightVC = `engaging in venture capital
 |─ \x1b]8;;https://www.8vc.com/fellows/josh-yan\x1b\\fellowship\x1b]8;;\x1b\\
 
@@ -145,6 +160,7 @@ export const fileSystem = {
             'skyline.md': skyline,
             'portfolio.md': portfolio,
             'stealth-startup.md': stealthStartup,
+            'arceus': arceus,
         },
         'work': {
             'ollama.md': ollama,
