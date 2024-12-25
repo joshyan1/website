@@ -160,7 +160,7 @@ export const fileSystem = {
             'skyline.md': skyline,
             'portfolio.md': portfolio,
             'stealth-startup.md': stealthStartup,
-            'arceus': arceus,
+            'arceus.md': arceus,
         },
         'work': {
             'ollama.md': ollama,
